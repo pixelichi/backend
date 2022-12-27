@@ -17,7 +17,11 @@ migrate-down:
 sqlc:
 	sqlc generate
 
+test:
+	go test -v -cover ./sqlc
+
 install-deps:
 	sudo snap install sqlc
+
 
 .PHONY: createdb dropdb migrate-up migrate-down sqlc
