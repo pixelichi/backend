@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"pixelichi.com/db/util"
+	"pixelichi.com/util"
 )
 
 func createRandomAccount(t *testing.T) Account {
+	user := createRandomUser(t)
+
 	arg := CreateAccountParams{
-		Owner:    util.RandomOwner(), // randomly generated?
+		OwnerID:  user.ID, // randomly generated?
 		Balance:  util.RandomBalance(),
 		Currency: util.RandomCurrency(),
 	}
@@ -21,7 +23,7 @@ func createRandomAccount(t *testing.T) Account {
 	require.NoError(t, err)
 	require.NotEmpty(t, account)
 
-	require.Equal(t, arg.Owner, account.Owner)
+	require.Equal(t, arg.OwnerID, account.OwnerID)
 	require.Equal(t, arg.Balance, account.Balance)
 	require.Equal(t, arg.Currency, account.Currency)
 
@@ -45,7 +47,7 @@ func TestGetAccount(t *testing.T) {
 	require.Equal(t, acc.ID, fetchedAcc.ID)
 	require.Equal(t, acc.Balance, fetchedAcc.Balance)
 	require.Equal(t, acc.Currency, fetchedAcc.Currency)
-	require.Equal(t, acc.Owner, fetchedAcc.Owner)
+	require.Equal(t, acc.OwnerID, fetchedAcc.OwnerID)
 	require.WithinDuration(t, acc.CreatedAt, fetchedAcc.CreatedAt, time.Second)
 }
 
@@ -67,7 +69,7 @@ func TestUpdateAccount(t *testing.T) {
 
 	require.Equal(t, newAcc.ID, acc.ID)
 	require.Equal(t, newAcc.Currency, acc.Currency)
-	require.Equal(t, newAcc.Owner, acc.Owner)
+	require.Equal(t, newAcc.OwnerID, acc.OwnerID)
 	require.WithinDuration(t, newAcc.CreatedAt, acc.CreatedAt, time.Second)
 }
 
