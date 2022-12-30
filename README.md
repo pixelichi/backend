@@ -21,3 +21,5 @@ https://github.com/go-playground/validator
 # TODO
 - Need to implement Mock Db for testing HTTP API in GO and achieve 100% coverage
 - Need to add additional tests for api module...
+- Middleware need testing
+- Transfers API doesn't have authorization yet

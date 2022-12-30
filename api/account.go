@@ -2,15 +2,16 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	db "pixelichi.com/db/sqlc"
+	"pixelichi.com/token"
 )
 
 type createAccountRequest struct {
-	OwnerID  int64  `json:"owner_id" binding:"required"`
 	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
 }
 
@@ -21,8 +22,10 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	arg := db.CreateAccountParams{
-		OwnerID:  req.OwnerID,
+		OwnerID:  authPayload.UserID,
 		Currency: req.Currency,
 		Balance:  int64(0),
 	}
@@ -71,12 +74,20 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if account.OwnerID != authPayload.UserID {
+		err := errors.New("account does not belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, account)
 }
 
 type listAccountsRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	OwnerID  int64 `json:"owner_id"`
 }
 
 func (server *Server) listAccounts(ctx *gin.Context) {
@@ -87,9 +98,12 @@ func (server *Server) listAccounts(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	accounts, err := server.store.ListAccounts(ctx, db.ListAccountsParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		Limit:   req.PageSize,
+		Offset:  (req.PageID - 1) * req.PageSize,
+		OwnerID: authPayload.UserID,
 	})
 	if err != nil {
 

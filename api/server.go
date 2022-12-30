@@ -31,17 +31,24 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 		tokenMaker: tokenMaker,
 	}
 
+	server.setupRouter()
+	return server, nil
+}
+
+func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	// add routes to router
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts/:id", server.getAccount)
-	router.GET("/accounts", server.listAccounts)
+	// No auth needed
+	router.POST("/users", server.createUser)
+	router.POST("/users/login", server.loginUser)
 
-	router.POST("/user", server.createUser)
+	// add routes to router
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes.POST("/accounts", server.createAccount)
+	authRoutes.GET("/accounts/:id", server.getAccount)
+	authRoutes.GET("/accounts", server.listAccounts)
 
 	server.router = router
-	return server, nil
 }
 
 // Start the http server on a specific address
