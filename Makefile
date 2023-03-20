@@ -2,7 +2,7 @@
 
 POSTGRES_POD_NAME = $(shell kubectl get pods | grep postgres | awk '{ print $$1 }')
 DB_DRIVER = postgresql
-DB_NAME = simple_bank
+DB_NAME = db
 DB_USER = admin
 DB_PASS = password
 DB_HOST = localhost
@@ -15,6 +15,8 @@ createdb:
 dropdb:
 	kubectl exec -it $(POSTGRES_POD_NAME) -- dropdb --username=$(DB_USER) $(DB_NAME)
 
+# Required Dependency - https://github.com/golang-migrate/migrate
+# To install - https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
 create-migration:
 	test $(MIGRATION_NAME) != "default" && migrate create -ext sql -dir db/migration -seq $(MIGRATION_NAME)
 
