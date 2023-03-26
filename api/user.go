@@ -11,6 +11,40 @@ import (
 	"pixelichi.com/util"
 )
 
+type userErrorResponse struct {
+	util.BaseErrorResponse
+}
+
+type badRequestError struct {
+	error
+}
+
+// Declare an instance of a struct named badRequestErrorResponse
+func getUserErrorResponse(err error) interface{} {
+	switch err.(type) {
+	case badRequestError:
+		return userErrorResponse{
+			BaseErrorResponse: util.BaseErrorResponse{
+				Type:     "https://pixelichi.com/docs/errors/bad-request",
+				Title:    "Your login user request smelled bad. Maybe it had some weird fields or was missing fields. Please try to compose it better and try again.",
+				Status:   http.StatusBadRequest,
+				Detail:   err.Error(),
+				Instance: "https://pixelichi.com/docs/errors/bad-request",
+			},
+		}
+	default:
+		return userErrorResponse{
+			BaseErrorResponse: util.BaseErrorResponse{
+				Type:     "Default Error, super generic within the user api... no clue",
+				Title:    "idk man, we didn't really create an error type for this, so it's a default error",
+				Status:   http.StatusInternalServerError,
+				Detail:   err.Error(),
+				Instance: "https://pixelichi.com/docs/errors/unknown-error",
+			},
+		}
+	}
+}
+
 type createUserRequest struct {
 	Username string `json:"username" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
@@ -96,9 +130,10 @@ type loginUserResponseStruct struct {
 func (server *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
 
-	// Unfurtling the request to login
+	// Bind the request body to the request struct
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		// Return an error if the request body is invalid
+		ctx.JSON(http.StatusBadRequest, getUserErrorResponse(badRequestError{err}))
 		return
 	}
 
