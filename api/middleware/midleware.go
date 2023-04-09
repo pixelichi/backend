@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"pixelichi.com/api/common/error"
 	"pixelichi.com/token"
 )
 
@@ -23,7 +24,7 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		// If auth header was not provided
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provided")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, error.NewNotAuthorizedError(err.Error()))
 			return
 		}
 
@@ -31,14 +32,16 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		fields := strings.Fields(authorizationHeader)
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, error.NewNotAuthorizedError(err.Error()))
+
 			return
 		}
 
 		authorizationType := strings.ToLower(fields[0])
 		if authorizationType != validAuthorizationType {
 			err := errors.New("unsupported authorization")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, error.NewNotAuthorizedError(err.Error()))
+
 			return
 		}
 
@@ -47,7 +50,8 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		payload, err := tokenMaker.VerifyToken(accessToken)
 		if err != nil {
 			err := errors.New("invalid access token")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, error.NewNotAuthorizedError(err.Error()))
+
 			return
 		}
 

@@ -1,120 +1,123 @@
 package api
 
-import (
-	"database/sql"
-	"errors"
-	"net/http"
+// import (
+// 	"database/sql"
+// 	"errors"
+// 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
-	db "pixelichi.com/db/sqlc"
-	"pixelichi.com/token"
-)
+// 	"github.com/gin-gonic/gin"
+// 	"pixelichi.com/api/common"
+// 	"github.com/lib/pq"
+// 	db "pixelichi.com/db/sqlc"
+// 	"pixelichi.com/token"
+// )
 
-type createAccountRequest struct {
-	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
-}
+// func errorResponse = common.errorResponse
 
-func (server *Server) createAccount(ctx *gin.Context) {
-	var req createAccountRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+// type createAccountRequest struct {
+// 	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
+// }
 
-	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+// func (server *Server) createAccount(ctx *gin.Context) {
+// 	var req createAccountRequest
+// 	if err := ctx.ShouldBindJSON(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+// 		return
+// 	}
 
-	arg := db.CreateAccountParams{
-		OwnerID:  authPayload.UserID,
-		Currency: req.Currency,
-		Balance:  int64(0),
-	}
+// 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 
-	account, err := server.store.CreateAccount(ctx, arg)
-	if err != nil {
+// 	arg := db.CreateAccountParams{
+// 		OwnerID:  authPayload.UserID,
+// 		Currency: req.Currency,
+// 		Balance:  int64(0),
+// 	}
 
-		// If it's a DB error, let's choose how to respond
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "foreign_key_violation", "unique_violation":
-				ctx.JSON(http.StatusForbidden, errorResponse(err))
-				return
-			}
-		}
+// 	account, err := server.store.CreateAccount(ctx, arg)
+// 	if err != nil {
 
-		// Non DB error, still need to fail
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
+// 		// If it's a DB error, let's choose how to respond
+// 		if pqErr, ok := err.(*pq.Error); ok {
+// 			switch pqErr.Code.Name() {
+// 			case "foreign_key_violation", "unique_violation":
+// 				ctx.JSON(http.StatusForbidden, errorResponse(err))
+// 				return
+// 			}
+// 		}
 
-	ctx.JSON(http.StatusOK, account)
-}
+// 		// Non DB error, still need to fail
+// 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+// 		return
+// 	}
 
-type getAccountRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
-}
+// 	ctx.JSON(http.StatusOK, account)
+// }
 
-func (server *Server) getAccount(ctx *gin.Context) {
-	var req getAccountRequest
+// type getAccountRequest struct {
+// 	ID int64 `uri:"id" binding:"required,min=1"`
+// }
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+// func (server *Server) getAccount(ctx *gin.Context) {
+// 	var req getAccountRequest
 
-	account, err := server.store.GetAccount(ctx, req.ID)
-	if err != nil {
+// 	if err := ctx.ShouldBindUri(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+// 		return
+// 	}
 
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
+// 	account, err := server.store.GetAccount(ctx, req.ID)
+// 	if err != nil {
 
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
+// 		if err == sql.ErrNoRows {
+// 			ctx.JSON(http.StatusNotFound, errorResponse(err))
+// 			return
+// 		}
 
-	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-	if account.OwnerID != authPayload.UserID {
-		err := errors.New("account does not belong to the authenticated user")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
-	}
+// 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+// 		return
+// 	}
 
-	ctx.JSON(http.StatusOK, account)
-}
+// 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+// 	if account.OwnerID != authPayload.UserID {
+// 		err := errors.New("account does not belong to the authenticated user")
+// 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+// 		return
+// 	}
 
-type listAccountsRequest struct {
-	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
-	OwnerID  int64 `json:"owner_id"`
-}
+// 	ctx.JSON(http.StatusOK, account)
+// }
 
-func (server *Server) listAccounts(ctx *gin.Context) {
-	var req listAccountsRequest
+// type listAccountsRequest struct {
+// 	PageID   int32 `form:"page_id" binding:"required,min=1"`
+// 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+// 	OwnerID  int64 `json:"owner_id"`
+// }
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+// func (server *Server) listAccounts(ctx *gin.Context) {
+// 	var req listAccountsRequest
 
-	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+// 	if err := ctx.ShouldBindQuery(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+// 		return
+// 	}
 
-	accounts, err := server.store.ListAccounts(ctx, db.ListAccountsParams{
-		Limit:   req.PageSize,
-		Offset:  (req.PageID - 1) * req.PageSize,
-		OwnerID: authPayload.UserID,
-	})
-	if err != nil {
+// 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
+// 	accounts, err := server.store.ListAccounts(ctx, db.ListAccountsParams{
+// 		Limit:   req.PageSize,
+// 		Offset:  (req.PageID - 1) * req.PageSize,
+// 		OwnerID: authPayload.UserID,
+// 	})
+// 	if err != nil {
 
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
+// 		if err == sql.ErrNoRows {
+// 			ctx.JSON(http.StatusNotFound, errorResponse(err))
+// 			return
+// 		}
 
-	ctx.JSON(http.StatusOK, accounts)
-}
+// 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+// 		return
+// 	}
+
+// 	ctx.JSON(http.StatusOK, accounts)
+// }

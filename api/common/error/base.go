@@ -1,4 +1,8 @@
-package util
+package error
+
+import (
+	"fmt"
+)
 
 /*
 https://datatracker.ietf.org/doc/html/rfc7807
@@ -32,3 +36,38 @@ type BaseErrorResponse struct {
 	Detail   string `json:"detail" binding:"required"`
 	Instance string `json:"instance" binding:"required"`
 }
+
+func (e *BaseErrorResponse) Error() string {
+	return fmt.Sprintf("[%s] %s: %s (status: %d, instance: %s)", e.Type, e.Title, e.Detail, e.Status, e.Instance)
+}
+
+func (e *BaseErrorResponse) GetType() string {
+	return e.Type
+}
+
+func (e *BaseErrorResponse) GetTitle() string {
+	return e.Title
+}
+
+func (e *BaseErrorResponse) GetStatus() int {
+	return e.Status
+}
+
+func (e *BaseErrorResponse) GetDetail() string {
+	return e.Detail
+}
+
+func (e *BaseErrorResponse) GetInstance() string {
+	return e.Instance
+}
+
+func NewBaseError(errorType, title string, status int, detail, instance string) CustomError {
+	return &BaseErrorResponse{
+		Type:     errorType,
+		Title:    title,
+		Status:   status,
+		Detail:   detail,
+		Instance: instance,
+	}
+}
+

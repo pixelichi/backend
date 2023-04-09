@@ -6,9 +6,13 @@ import (
 
 	_ "github.com/lib/pq"
 	"pixelichi.com/api"
+	"pixelichi.com/api/common"
 	db "pixelichi.com/db/sqlc"
 	"pixelichi.com/util"
 )
+
+// Define an alias for the Server type.
+type Server = common.Server
 
 // const (
 // 	dbDriver      = "postgres"

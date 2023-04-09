@@ -6,18 +6,15 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"pixelichi.com/api/common"
+	"pixelichi.com/api/user"
 	db "pixelichi.com/db/sqlc"
 	"pixelichi.com/token"
 	"pixelichi.com/util"
 )
 
-// Server serves http
-type Server struct {
-	config     util.Config
-	store      *db.Store
-	router     *gin.Engine
-	tokenMaker token.Maker
-}
+// Define an alias for the Server type.
+type Server = common.Server
 
 // NewServer creates a new HTTP server and setup routing
 func NewServer(config util.Config, store *db.Store) (*Server, error) {
@@ -28,16 +25,17 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 	}
 
 	server := &Server{
-		config:     config,
-		store:      store,
-		tokenMaker: tokenMaker,
+		Config:     config,
+		Store:      store,
+		TokenMaker: tokenMaker,
 	}
 
-	server.setupRouter()
+	setupRouter(config, server)
+
 	return server, nil
 }
 
-func (server *Server) setupRouter() {
+func setupRouter(config util.Config, server *Server) {
 	router := gin.Default()
 
   // CORS for https://foo.com and https://github.com origins, allowing:
@@ -58,24 +56,21 @@ func (server *Server) setupRouter() {
   }))
 
 	// No auth needed
-	router.POST("/users", server.createUser)
-	router.POST("/users/login", server.loginUser)
+	// router.POST("/users", server.createUser)
+	router.POST("/users/login", withServerContext(server, user.LoginUser))
 
 	// add routes to router
-	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
-	authRoutes.POST("/accounts", server.createAccount)
-	authRoutes.GET("/accounts/:id", server.getAccount)
-	authRoutes.GET("/accounts", server.listAccounts)
+	// authRoutes := router.Group("/").Use(authMiddleware(server.TokenMaker))
+	// authRoutes.POST("/accounts", server.createAccount)
+	// authRoutes.GET("/accounts/:id", server.getAccount)
+	// authRoutes.GET("/accounts", server.listAccounts)
 
-
-	server.router = router
+	server.Router = router
 }
 
-// Start the http server on a specific address
-func (server *Server) Start(address string) error {
-	return server.router.Run(address)
-}
-
-func errorResponse(err error) gin.H{
-	return gin.H{"error": err.Error()}
+// Allows us to pass the server to the handler functions
+func withServerContext(server *Server, handler func(server *Server, c *gin.Context)) func(c *gin.Context) {
+	return func (c *gin.Context) {
+		handler(server, c)
+	}
 }
