@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -44,13 +45,12 @@ func setupRouter(config util.Config, server *Server) {
   // - Credentials share
   // - Preflight requests cached for 12 hours
   router.Use(cors.New(cors.Config{
-    AllowOrigins:     []string{"http://localhost:3000"},
     AllowMethods:     []string{"POST", "GET"},
     AllowHeaders:     []string{"Origin","Content-Type"},
     ExposeHeaders:    []string{"Content-Length"},
     AllowCredentials: true,
     AllowOriginFunc: func(origin string) bool {
-      return origin == "http://localhost:3000"
+			return strings.HasPrefix(origin, config.ALLOW_ORIGIN)
     },
     MaxAge: 12 * time.Hour,
   }))
