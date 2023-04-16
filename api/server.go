@@ -7,10 +7,14 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"pixelichi.com/api/account"
+	"pixelichi.com/api/auth"
 	"pixelichi.com/api/common"
+	"pixelichi.com/api/middleware"
 	"pixelichi.com/api/user"
 	db "pixelichi.com/db/sqlc"
-	"pixelichi.com/token"
+	token "pixelichi.com/token"
+
 	"pixelichi.com/util"
 )
 
@@ -58,12 +62,14 @@ func setupRouter(config util.Config, server *Server) {
 	// No auth needed
 	// router.POST("/users", server.createUser)
 	router.POST("/users/login", withServerContext(server, user.LoginUser))
+	router.GET("/auth/check", withServerContext(server, auth.CheckAuth))
+	
 
 	// add routes to router
-	// authRoutes := router.Group("/").Use(authMiddleware(server.TokenMaker))
+	authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.TokenMaker))
 	// authRoutes.POST("/accounts", server.createAccount)
 	// authRoutes.GET("/accounts/:id", server.getAccount)
-	// authRoutes.GET("/accounts", server.listAccounts)
+	authRoutes.GET("/accounts/list", withServerContext(server, account.ListAccounts))
 
 	server.Router = router
 }

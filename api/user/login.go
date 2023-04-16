@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"pixelichi.com/api/common"
@@ -61,7 +62,14 @@ func LoginUser(server *Server, ctx *gin.Context) {
 	}
 
 	// Set the token in an HttpOnly cookie
-	httpOnlyCookie := http.Cookie{Name: "access_token", Value: accessToken, HttpOnly: true}
+	httpOnlyCookie := http.Cookie{
+		Name: "access_token",
+		Value: accessToken,
+		HttpOnly: true,
+		Expires: time.Now().Add(12 * time.Hour),
+		Path: "/",
+	}
+
 	http.SetCookie(ctx.Writer, &httpOnlyCookie)
 
 	response := loginUserResponse{

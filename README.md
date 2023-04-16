@@ -1,5 +1,9 @@
 # Backend
 
+# Reference
+
+https://github.com/techschool/simplebank
+
 # Tech Stack
 
 - [sqlc](https://github.com/kyleconroy/sqlc) for generating golang functions that match postgres database schema
@@ -30,3 +34,4 @@ https://github.com/go-playground/validator
 - Need to add additional tests for api module...
 - Middleware need testing
 - Transfers API doesn't have authorization yet
+- Figure out CSRF along with access_token saved in cookie

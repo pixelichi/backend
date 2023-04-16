@@ -2,20 +2,20 @@ package error
 
 import "net/http"
 
-type InvalidCredentialsError struct {
+type NotFoundError struct {
 	BaseErrorResponse
 }
 
 
-func NewInvalidCredentialsError(detail string) CustomError {
+func NewNotFoundError(detail string) CustomError {
 	if detail == "" {
-		detail = "Invalid Credentials, please check your username and password."
+		detail = "Not found"
 	}
 
 	return &InvalidCredentialsError{
 		BaseErrorResponse{
 			Type:     "https://pixelichi.com/docs/errors/invalid-credentials",
-			Title:    "Invalid Credentials",
+			Title:    "Not found",
 			Status:   http.StatusNotFound,
 			Detail:   detail,
 			Instance: "", // You can assign an instance value or leave it empty, based on your requirements.
