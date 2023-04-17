@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"pixelichi.com/api/common"
-	"pixelichi.com/api/common/error"
+	"shinypothos.com/api/common"
+	"shinypothos.com/api/common/error"
 )
 
 type Server = common.Server

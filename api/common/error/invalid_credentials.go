@@ -14,7 +14,7 @@ func NewInvalidCredentialsError(detail string) CustomError {
 
 	return &InvalidCredentialsError{
 		BaseErrorResponse{
-			Type:     "https://pixelichi.com/docs/errors/invalid-credentials",
+			Type:     "https://shinypothos.com/docs/errors/invalid-credentials",
 			Title:    "Invalid Credentials",
 			Status:   http.StatusNotFound,
 			Detail:   detail,

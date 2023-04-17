@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
-	"pixelichi.com/api/common/error"
-	db "pixelichi.com/db/sqlc"
-	"pixelichi.com/util"
+	"shinypothos.com/api/common/error"
+	db "shinypothos.com/db/sqlc"
+	"shinypothos.com/util"
 )
 
 type createUserRequest struct {

@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"pixelichi.com/api/common"
-	"pixelichi.com/api/common/error"
-	"pixelichi.com/token"
+	"shinypothos.com/api/common"
+	"shinypothos.com/api/common/error"
+	"shinypothos.com/token"
 )
 
 func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {

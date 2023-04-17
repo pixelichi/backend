@@ -7,15 +7,15 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"pixelichi.com/api/account"
-	"pixelichi.com/api/auth"
-	"pixelichi.com/api/common"
-	"pixelichi.com/api/middleware"
-	"pixelichi.com/api/user"
-	db "pixelichi.com/db/sqlc"
-	token "pixelichi.com/token"
+	"shinypothos.com/api/account"
+	"shinypothos.com/api/auth"
+	"shinypothos.com/api/common"
+	"shinypothos.com/api/middleware"
+	"shinypothos.com/api/user"
+	db "shinypothos.com/db/sqlc"
+	token "shinypothos.com/token"
 
-	"pixelichi.com/util"
+	"shinypothos.com/util"
 )
 
 // Define an alias for the Server type.

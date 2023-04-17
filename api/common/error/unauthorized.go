@@ -14,7 +14,7 @@ func NewNotAuthorizedError(detail string) CustomError {
 
 	return &BadRequestError{
 		BaseErrorResponse{
-			Type:     "https://pixelichi.com/docs/errors/not-authorized",
+			Type:     "https://shinypothos.com/docs/errors/not-authorized",
 			Title:    "Not Authorized",
 			Status:   http.StatusBadRequest,
 			Detail:   detail,

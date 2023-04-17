@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	_ "github.com/lib/pq"
-	"pixelichi.com/util"
+	"shinypothos.com/util"
 )
 
 var testQueries *Queries

@@ -14,7 +14,7 @@ func NewBadRequestError(detail string) CustomError {
 
 	return &BadRequestError{
 		BaseErrorResponse{
-			Type:     "https://pixelichi.com/docs/errors/bad-request",
+			Type:     "https://shinypothos.com/docs/errors/bad-request",
 			Title:    "Bad Request",
 			Status:   http.StatusUnauthorized,
 			Detail:   detail,

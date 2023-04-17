@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"pixelichi.com/api/common"
-	"pixelichi.com/api/common/error"
-	db "pixelichi.com/db/sqlc"
-	"pixelichi.com/token"
+	"shinypothos.com/api/common"
+	"shinypothos.com/api/common/error"
+	db "shinypothos.com/db/sqlc"
+	"shinypothos.com/token"
 )
 
 type Server = common.Server

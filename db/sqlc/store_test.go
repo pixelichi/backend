@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"pixelichi.com/util"
+	"shinypothos.com/util"
 )
 
 func TestTransferTx(t *testing.T) {

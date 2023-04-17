@@ -2,9 +2,9 @@ package common
 
 import (
 	"github.com/gin-gonic/gin"
-	db "pixelichi.com/db/sqlc"
-	"pixelichi.com/token"
-	"pixelichi.com/util"
+	db "shinypothos.com/db/sqlc"
+	"shinypothos.com/token"
+	"shinypothos.com/util"
 )
 
 // Server serves HTTP requests for our banking service.

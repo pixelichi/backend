@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"pixelichi.com/api/common"
-	"pixelichi.com/api/common/error"
-	"pixelichi.com/util"
+	"shinypothos.com/api/common"
+	"shinypothos.com/api/common/error"
+	"shinypothos.com/util"
 )
 
 type Server = common.Server

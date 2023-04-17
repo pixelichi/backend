@@ -1,4 +1,4 @@
-module pixelichi.com
+module shinypothos.com
 
 go 1.19
 

@@ -13,7 +13,7 @@ func NewInternalServerError(detail string) CustomError {
 
 	return &InvalidCredentialsError{
 		BaseErrorResponse{
-			Type:     "https://pixelichi.com/docs/errors/internal-server-error",
+			Type:     "https://shinypothos.com/docs/errors/internal-server-error",
 			Title:    "Internal Server Error",
 			Status:   http.StatusInternalServerError,
 			Detail:   detail,

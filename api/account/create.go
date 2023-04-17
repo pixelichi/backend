@@ -5,9 +5,9 @@ package account
 
 // 	"github.com/gin-gonic/gin"
 // 	"github.com/lib/pq"
-// 	"pixelichi.com/api/common"
-// 	db "pixelichi.com/db/sqlc"
-// 	"pixelichi.com/token"
+// 	"shinypothos.com/api/common"
+// 	db "shinypothos.com/db/sqlc"
+// 	"shinypothos.com/token"
 // )
 
 // type createAccountRequest struct {

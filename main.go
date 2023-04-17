@@ -5,10 +5,10 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
-	"pixelichi.com/api"
-	"pixelichi.com/api/common"
-	db "pixelichi.com/db/sqlc"
-	"pixelichi.com/util"
+	"shinypothos.com/api"
+	"shinypothos.com/api/common"
+	db "shinypothos.com/db/sqlc"
+	"shinypothos.com/util"
 )
 
 // Define an alias for the Server type.

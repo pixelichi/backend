@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"pixelichi.com/util"
+	"shinypothos.com/util"
 )
 
 func TestPasetoMaker(t *testing.T) {

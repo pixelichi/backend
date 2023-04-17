@@ -14,7 +14,7 @@ func NewNotFoundError(detail string) CustomError {
 
 	return &InvalidCredentialsError{
 		BaseErrorResponse{
-			Type:     "https://pixelichi.com/docs/errors/invalid-credentials",
+			Type:     "https://shinypothos.com/docs/errors/invalid-credentials",
 			Title:    "Not found",
 			Status:   http.StatusNotFound,
 			Detail:   detail,

@@ -6,7 +6,7 @@ package account
 // 	"net/http"
 
 // 	"github.com/gin-gonic/gin"
-// 	"pixelichi.com/token"
+// 	"shinypothos.com/token"
 // )
 
 // type getAccountRequest struct {
