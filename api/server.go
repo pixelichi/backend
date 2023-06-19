@@ -7,10 +7,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"shinypothos.com/api/account"
 	"shinypothos.com/api/auth"
 	"shinypothos.com/api/common"
-	"shinypothos.com/api/middleware"
 	"shinypothos.com/api/user"
 	db "shinypothos.com/db/sqlc"
 	token "shinypothos.com/token"
@@ -62,14 +60,13 @@ func setupRouter(config util.Config, server *Server) {
 	// No auth needed
 	// router.POST("/users", server.createUser)
 	router.POST("/users/login", withServerContext(server, user.LoginUser))
+	router.POST("/users/sign_up", withServerContext(server, user.SignUp))
 	router.GET("/auth/check", withServerContext(server, auth.CheckAuth))
 	
-
 	// add routes to router
-	authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.TokenMaker))
+	// authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.TokenMaker))
 	// authRoutes.POST("/accounts", server.createAccount)
 	// authRoutes.GET("/accounts/:id", server.getAccount)
-	authRoutes.GET("/accounts/list", withServerContext(server, account.ListAccounts))
 
 	server.Router = router
 }

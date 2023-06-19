@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -11,22 +12,20 @@ import (
 	"shinypothos.com/util"
 )
 
-type createUserRequest struct {
+type SignUpRequest struct {
 	Username string `json:"username" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
-	FullName string `json:"full_name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 }
 
-type userResponse struct {
+type SignUpResponse struct {
 	Username string `json:"username"`
-	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 }
 
 
-func CreateUser(server *Server, ctx *gin.Context) {
-	var req createUserRequest
+func SignUp(server *Server, ctx *gin.Context) {
+	var req SignUpRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, error.NewBadRequestError(err.Error()))
@@ -42,38 +41,53 @@ func CreateUser(server *Server, ctx *gin.Context) {
 	arg := db.CreateUserParams{
 		Username:       req.Username,
 		HashedPassword: hashedPass,
-		FullName:       req.FullName,
 		Email:          req.Email,
 	}
 
 	user, err := server.Store.CreateUser(ctx, arg)
+
 	if err != nil {
 
 		if pqErr, ok := err.(*pq.Error); ok {
-
 			code_name := pqErr.Code.Name()
 			msg := fmt.Sprintf("Error Code: %v, Error Text: %v", code_name, err.Error())
 
 			switch code_name {
 
 			case "unique_violation":
-				ctx.JSON(http.StatusForbidden, msg)
+				ctx.JSON(http.StatusForbidden, error.NewForbiddenError("User already exists, please use a different username and email."))
 				return
 
 			default:
-				ctx.JSON(http.StatusInternalServerError, msg)
+				ctx.JSON(http.StatusInternalServerError, error.NewInternalServerError(msg))
 				return
 			}
-
 		}
 
 		ctx.JSON(http.StatusInternalServerError, error.NewInternalServerError(err.Error()))
 		return
 	}
 
-	response := userResponse{
+	// User successfully created, let's create a token
+	accessToken, err := server.TokenMaker.CreateToken(user.ID, server.Config.AccessTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, error.NewInternalServerError(err.Error()))
+		return
+	}
+
+	// Set the token in an HttpOnly cookie
+	httpOnlyCookie := http.Cookie{
+		Name: "access_token",
+		Value: accessToken,
+		HttpOnly: true,
+		Expires: time.Now().Add(12 * time.Hour),
+		Path: "/",
+	}
+
+	http.SetCookie(ctx.Writer, &httpOnlyCookie)
+
+	response := SignUpResponse{
 		Username: user.Username,
-		FullName: user.FullName,
 		Email:    user.Email,
 	}
 

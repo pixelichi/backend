@@ -20,7 +20,6 @@ type loginUserRequest struct {
 
 type loginUserResponse struct {
 	Username string `json:"username"`
-	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 }
 
@@ -74,7 +73,6 @@ func LoginUser(server *Server, ctx *gin.Context) {
 
 	response := loginUserResponse{
 		Username: user.Username,
-		FullName: user.FullName,
 		Email:    user.Email,
 	}
 

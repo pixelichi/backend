@@ -6,11 +6,6 @@
 # to install a cross compiler when golang ultimately compiles C code.
 FROM --platform='linux/amd64' golang:1.19 as builder
 
-# # Install git + SSL ca certificates.
-# # Git is required for fetching the dependencies.
-# # Ca-certificates is required to call HTTPS endpoints.
-RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificates
-
 # Create appuser
 ENV USER=appuser
 ENV UID=10001
@@ -25,7 +20,7 @@ RUN adduser \
   --uid "${UID}" \    
   "${USER}"
 
-# WORKDIR /app
+WORKDIR /app
 COPY . .
 
 # Fetch dependencies.
@@ -42,8 +37,6 @@ RUN go build -o /usr/local/bin/backend
 
 FROM --platform='linux/amd64' gcr.io/distroless/base
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
 # Use an unprivileged user.
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
@@ -55,6 +48,7 @@ WORKDIR /app
 
 # Copy our static executable
 COPY --from=builder /usr/local/bin/backend .
+COPY env/prod.env .env
 
 # Run the binary.
 CMD ["./backend"]
