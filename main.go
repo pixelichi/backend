@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"shinypothos.com/api"
 	"shinypothos.com/api/common"
+	"shinypothos.com/api/minio"
 	db "shinypothos.com/db/sqlc"
 	"shinypothos.com/util"
 )
@@ -37,6 +38,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Cannot create server: ", err)
 	}
+
+	minio.InitMinioClient(config.MINIO_ENDPOINT, config.MINIO_ACCESS_KEY, config.MINIO_SECRET_KEY)
 
 	err = server.Start(config.ServerAddress)
 

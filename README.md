@@ -9,6 +9,7 @@ https://github.com/techschool/simplebank
 - [sqlc](https://github.com/kyleconroy/sqlc) for generating golang functions that match postgres database schema
 - [gin](https://github.com/gin-gonic/gin) for http server
 - [viper](https://github.com/spf13/viper) for loading config / environment variables
+- [minio-go](https://github.com/minio/minio-go)
 
 # Tooling
 

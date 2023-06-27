@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"shinypothos.com/api/auth"
 	"shinypothos.com/api/common"
+	"shinypothos.com/api/test"
 	"shinypothos.com/api/user"
 	db "shinypothos.com/db/sqlc"
 	token "shinypothos.com/token"
@@ -52,17 +53,23 @@ func setupRouter(config util.Config, server *Server) {
     ExposeHeaders:    []string{"Content-Length"},
     AllowCredentials: true,
     AllowOriginFunc: func(origin string) bool {
-			return strings.HasPrefix(origin, config.ALLOW_ORIGIN)
+			return strings.HasPrefix(origin, config.ALLOW_ORIGIN) || (util.IsLocalEnv(config) &&  strings.HasPrefix(origin, config.ALLOW_ORIGIN_LAN))
     },
     MaxAge: 12 * time.Hour,
   }))
 
 	// No auth needed
-	// router.POST("/users", server.createUser)
-	router.POST("/users/login", withServerContext(server, user.LoginUser))
-	router.POST("/users/sign_up", withServerContext(server, user.SignUp))
 	router.GET("/auth/check", withServerContext(server, auth.CheckAuth))
+	router.POST("/users/login", withServerContext(server, user.LoginUser))
+
+	if util.IsLocalEnv(config) { // dev only routers
+		router.POST("/users/sign_up", withServerContext(server, user.SignUp))
+		router.GET("/test/minio", test.Minio)
+	}
+
+
 	
+
 	// add routes to router
 	// authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.TokenMaker))
 	// authRoutes.POST("/accounts", server.createAccount)

@@ -30,7 +30,7 @@ builder:
   SAVE ARTIFACT /usr/local/bin/backend
 
 final-image:
-  ARG ENV="dev-cluster"
+  ARG ENV="prod"
   FROM --platform='linux/amd64' gcr.io/distroless/base
 
   # Use an unprivileged user.
