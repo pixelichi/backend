@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"shinypothos.com/api/common"
 	"shinypothos.com/api/common/error"
 	"shinypothos.com/token"
 )
@@ -26,7 +25,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set(common.AuthorizationPayloadKey, payload)
+		ctx.Set(token.AuthorizationPayloadKey, payload)
 		ctx.Next()
 	}
 }

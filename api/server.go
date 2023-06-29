@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"shinypothos.com/api/auth"
 	"shinypothos.com/api/common"
-	"shinypothos.com/api/test"
+	"shinypothos.com/api/middleware"
 	"shinypothos.com/api/user"
 	db "shinypothos.com/db/sqlc"
 	token "shinypothos.com/token"
@@ -58,22 +58,24 @@ func setupRouter(config util.Config, server *Server) {
     MaxAge: 12 * time.Hour,
   }))
 
+	const userRoute = "user"
+
 	// No auth needed
 	router.GET("/auth/check", withServerContext(server, auth.CheckAuth))
-	router.POST("/users/login", withServerContext(server, user.LoginUser))
+	router.POST("/"+ userRoute + "/login", withServerContext(server, user.LoginUser))
 
 	if util.IsLocalEnv(config) { // dev only routers
-		router.POST("/users/sign_up", withServerContext(server, user.SignUp))
-		router.GET("/test/minio", test.Minio)
+		router.POST("/"+ userRoute + "/sign_up", withServerContext(server, user.SignUp))
 	}
 
-
+	// add routes to router
+	authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.TokenMaker))
+	authRoutes.POST("/"+ userRoute + "/set_profile_photo", user.SetProfilePicture)
 	
 
-	// add routes to router
-	// authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.TokenMaker))
-	// authRoutes.POST("/accounts", server.createAccount)
 	// authRoutes.GET("/accounts/:id", server.getAccount)
+	// authRoutes.POST("/accounts", server.createAccount)
+
 
 	server.Router = router
 }

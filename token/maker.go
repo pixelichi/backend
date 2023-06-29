@@ -2,6 +2,12 @@ package token
 
 import "time"
 
+const (
+	AuthorizationHeaderKey  = "authorization"
+	ValidAuthorizationType  = "bearer"
+	AuthorizationPayloadKey = "authorization_payload"
+)
+
 // Maker is an interface for managing tokens
 type Maker interface {
 
@@ -9,5 +15,5 @@ type Maker interface {
 	CreateToken(userID int64, duration time.Duration) (string, error)
 
 	// Check if the token is valid or not and if it is, it will return the payload in the token
-	VerifyToken(token string) (*Payload, error)
+	VerifyToken(token string) (Payload, error)
 }

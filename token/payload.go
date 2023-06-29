@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -44,4 +45,19 @@ func (payload *Payload) Valid() error {
 		return ErrExpiredToken
 	}
 	return nil
+}
+
+func GetUserPayloadOrFatal(ctx *gin.Context) (payload Payload, err error) {
+
+	auth_info, exists := ctx.Get(AuthorizationPayloadKey)
+	if !exists {
+		return Payload{}, errors.New("User Authentication information was not available in the request context.")
+	}
+
+	payload, ok := auth_info.(Payload)
+	if !ok {
+		return Payload{}, errors.New("User Auth was in the context, but was not of the correct type and thus couldn't be unfurled.")
+	}
+
+	return payload, nil
 }
