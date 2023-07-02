@@ -1,46 +1,26 @@
 package user
 
 import (
-	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"shinypothos.com/api/common/request_context"
+	"shinypothos.com/api/common/request_util"
+	"shinypothos.com/api/data/ostore_txn"
 	"shinypothos.com/token"
+	"shinypothos.com/util/image_util"
 )
 
-const funcName = "set_profile_picture.go"
-
-type request struct {
-
+type setProfilePictureResponse struct {
 }
 
-type response struct {
-	Message string `json:"message"`
-}
+func SetProfilePicture(c *gin.Context) {
 
-func SetProfilePicture(ctx *gin.Context) {
-	// var req request
+	tokenPayload := token.GetPayloadOrAbort(c)
+	image := request_util.GetImageFromFormOrAbort(c, "file", image_util.ProfilePicConfig)
+	rc := request_context.GetReqCtxOrInternalServerError(c)
 
-	// Bind the request body to the request struct””
-	// if err := ctx.ShouldBindJSON(&req); err != nil {
-	// 	// Return an error if the request body is invalid
-	// 	ctx.JSON(http.StatusBadRequest, error.NewBadRequestError("Invalid Request Body - "+err.Error()))
-	// 	return
-	// }
+	ostore_txn.UploadFileToUserDataOrAbort(c, rc.OS, tokenPayload.UserID, image, profPicFileName)
 
-	userCtx, err := token.GetUserPayloadOrFatal(ctx)
-	if err != nil {
-		log.Fatalf("%v - Unable to get user information from auth token, %v", funcName, err)
-		return
-  }
-
-  log.Printf("This is the user we are dealing with user id: %v", userCtx.UserID)
-
-	response := response{
-		Message: strconv.FormatInt(userCtx.UserID, 10),
-	}
-
-	// Successful login, send back the response
-	ctx.JSON(http.StatusOK, response)
+	c.Data(http.StatusOK, "image/jpeg", image.Bytes())
 }

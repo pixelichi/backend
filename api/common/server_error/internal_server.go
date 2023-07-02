@@ -1,4 +1,4 @@
-package error
+package server_error
 
 import "net/http"
 

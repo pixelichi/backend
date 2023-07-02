@@ -1,6 +1,7 @@
 package util
 
 import (
+	"log"
 	"time"
 
 	"github.com/spf13/viper"
@@ -31,7 +32,7 @@ func IsLocalEnv(conf Config) bool {
 }
 
 // LoadConfig reads configuration from file or environment variable
-func LoadConfig(path string) (config Config, err error) {
+func LoadConfig(path string) Config {
 	viper.AddConfigPath(path)
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env") // can also use json or xml
@@ -39,11 +40,13 @@ func LoadConfig(path string) (config Config, err error) {
 	// Override values from app.env file with environment variables if they exist
 	viper.AutomaticEnv()
 
-	err = viper.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
-		return
+		log.Fatal("Cannot connect to DB: ", err)
 	}
 
+	var config Config
 	err = viper.Unmarshal(&config)
-	return
+
+	return config
 }
