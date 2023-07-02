@@ -1,21 +1,21 @@
-package error
+package server_error
 
 import "net/http"
 
-type NotFoundError struct {
+type InvalidCredentialsError struct {
 	BaseErrorResponse
 }
 
 
-func NewNotFoundError(detail string) CustomError {
+func NewInvalidCredentialsError(detail string) CustomError {
 	if detail == "" {
-		detail = "Not found"
+		detail = "Invalid Credentials, please check your username and password."
 	}
 
 	return &InvalidCredentialsError{
 		BaseErrorResponse{
 			Type:     "https://shinypothos.com/docs/errors/invalid-credentials",
-			Title:    "Not found",
+			Title:    "Invalid Credentials",
 			Status:   http.StatusNotFound,
 			Detail:   detail,
 			Instance: "", // You can assign an instance value or leave it empty, based on your requirements.

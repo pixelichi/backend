@@ -2,10 +2,12 @@ package token
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"shinypothos.com/api/common/server_error"
 )
 
 // Different types of error returned by the VerifyToken function
@@ -47,17 +49,17 @@ func (payload *Payload) Valid() error {
 	return nil
 }
 
-func GetUserPayloadOrFatal(ctx *gin.Context) (payload Payload, err error) {
+func GetPayloadOrAbort(c *gin.Context) Payload {
 
-	auth_info, exists := ctx.Get(AuthorizationPayloadKey)
+	auth_info, exists := c.Get(AuthorizationPayloadKey)
 	if !exists {
-		return Payload{}, errors.New("User Authentication information was not available in the request context.")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, server_error.NewNotAuthorizedError("User Authentication information was not available in the request context."))
 	}
 
 	payload, ok := auth_info.(Payload)
 	if !ok {
-		return Payload{}, errors.New("User Auth was in the context, but was not of the correct type and thus couldn't be unfurled.")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, server_error.NewInternalServerError("Could not read user information"))
 	}
 
-	return payload, nil
+	return payload
 }

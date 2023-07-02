@@ -1,4 +1,4 @@
-package error
+package server_error
 
 type CustomError interface {
 	error

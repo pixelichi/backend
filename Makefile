@@ -70,18 +70,10 @@ local-check-db:
 	curl $(LOCAL_DB_HOST):$(LOCAL_DB_PORT)
 
 local-db:
-	docker run -d --name $(LOCAL_DB_CONTAINER) -e POSTGRES_USER=$(LOCAL_DB_USER) -e POSTGRES_PASSWORD=$(LOCAL_DB_PASS) -e POSTGRES_DB=$(LOCAL_DB_NAME) -p $(LOCAL_DB_PORT):5432 postgres:15 || true
+	@./resources/build/start-local-minio.sh $(LOCAL_DB_CONTAINER) $(LOCAL_DB_PORT) $(LOCAL_DB_NAME) $(LOCAL_DB_USER) $(LOCAL_DB_PASS)
 	
 local-minio:
-	@mkdir -p ~/mnt/local/minio
-	docker run -d \
-   -p 7777:9000 \
-   -p 7778:9090 \
-   --name $(LOCAL_MINIO_CONTAINER) \
-   -v ~/mnt/local/minio/data:/data \
-   -e "MINIO_ACCESS_KEY=$(LOCAL_MINIO_ACCESS_KEY)" \
-   -e "MINIO_SECRET_KEY=$(LOCAL_MINIO_SECRET_KEY)" \
-   quay.io/minio/minio server /data --console-address ":9090" || true
+	@./resources/build/start-local-minio.sh $(LOCAL_MINIO_CONTAINER) $(LOCAL_MINIO_ACCESS_KEY) $(LOCAL_MINIO_SECRET_KEY)
 
 local-destroy-minio:
 	docker rm --force $(LOCAL_MINIO_CONTAINER)
@@ -92,7 +84,7 @@ local-destroy-db:
 local-psql:
 	docker container exec -it $(LOCAL_DB_CONTAINER) /bin/bash -c "psql -h $(LOCAL_DB_HOST) -U $(LOCAL_DB_USER) -d $(LOCAL_DB_NAME)"
 
-local-deploy: local-db local-minio
+local: local-db local-minio
 	go run main.go
 
 local-migrate-up:

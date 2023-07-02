@@ -1,15 +1,15 @@
 package user
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
-	"shinypothos.com/api/common/error"
+	"shinypothos.com/api/common/request_context"
+	"shinypothos.com/api/common/request_util"
+	"shinypothos.com/api/data/db_txn"
 	db "shinypothos.com/db/sqlc"
-	"shinypothos.com/util"
+	"shinypothos.com/util/password_util"
 )
 
 type SignUpRequest struct {
@@ -24,19 +24,11 @@ type SignUpResponse struct {
 }
 
 
-func SignUp(server *Server, ctx *gin.Context) {
-	var req SignUpRequest
+func SignUp(c *gin.Context) {
+	rc := request_context.GetReqCtxOrInternalServerError(c)
+	req := request_util.BindJSONOrAbort(c,&SignUpRequest{}).(*SignUpRequest)
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, error.NewBadRequestError(err.Error()))
-		return
-	}
-
-	hashedPass, err := util.HashPassword(req.Password)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, error.NewInternalServerError(err.Error()))
-		return
-	}
+	hashedPass := password_util.HashPasswordOrAbort(c, req.Password)
 
 	arg := db.CreateUserParams{
 		Username:       req.Username,
@@ -44,52 +36,24 @@ func SignUp(server *Server, ctx *gin.Context) {
 		Email:          req.Email,
 	}
 
-	user, err := server.Store.CreateUser(ctx, arg)
-
-	if err != nil {
-
-		if pqErr, ok := err.(*pq.Error); ok {
-			code_name := pqErr.Code.Name()
-			msg := fmt.Sprintf("Error Code: %v, Error Text: %v", code_name, err.Error())
-
-			switch code_name {
-
-			case "unique_violation":
-				ctx.JSON(http.StatusForbidden, error.NewForbiddenError("User already exists, please use a different username and email."))
-				return
-
-			default:
-				ctx.JSON(http.StatusInternalServerError, error.NewInternalServerError(msg))
-				return
-			}
-		}
-
-		ctx.JSON(http.StatusInternalServerError, error.NewInternalServerError(err.Error()))
-		return
-	}
-
-	// User successfully created, let's create a token
-	accessToken, err := server.TokenMaker.CreateToken(user.ID, server.Config.AccessTokenDuration)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, error.NewInternalServerError(err.Error()))
-		return
-	}
+	user := db_txn.CreateUserOrAbort(c,rc.DB,&arg)
+	accessToken := (*rc.TokenMaker).CreateTokenOrAbort(c, user.ID, rc.Config.AccessTokenDuration)
 
 	// Set the token in an HttpOnly cookie
 	httpOnlyCookie := http.Cookie{
 		Name: "access_token",
 		Value: accessToken,
 		HttpOnly: true,
-		Expires: time.Now().Add(12 * time.Hour),
+		Expires: time.Now().Add(rc.Config.AccessTokenDuration),
 		Path: "/",
 	}
 
-	http.SetCookie(ctx.Writer, &httpOnlyCookie)
+	http.SetCookie(c.Writer, &httpOnlyCookie)
 
 	response := SignUpResponse{
 		Username: user.Username,
 		Email:    user.Email,
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
