@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+
 	"shinypothos.com/util/conv"
 )
 
@@ -39,8 +40,6 @@ func NewMinioObjectStore(endpoint string, accessKey string, secretKey string) OS
 		client: newMinioClient,
 	}
 
-	// minio.CreateBucketIfDoesntExist(context.Background(), user_data.UserDataBucket)
-
 	return minio
 }
 
@@ -59,7 +58,7 @@ func (m *Minio) createBucketIfDoesntExist(ctx *gin.Context, bucketName string) {
 	}
 }
 
-func (m *Minio) UploadFile(ctx *gin.Context, bucketName, objectName string, reader io.Reader, fileSize int64) error {
+func (m *Minio) UploadObject(ctx *gin.Context, bucketName, objectName string, reader io.Reader, fileSize int64) error {
 
 	// Validate file size to not exceed max-size in MB
 	if fileSize > maxFileSizeBytes {
@@ -74,18 +73,11 @@ func (m *Minio) UploadFile(ctx *gin.Context, bucketName, objectName string, read
 	return nil
 }
 
-func (m *Minio) GetSignedUrlForUserDataFile(c *gin.Context, bucket string, object string, expDuration time.Duration, reqParams url.Values) (url.URL, error) {
+/*
+	Signed URLs
+*/
 
-	presignedURL, err := m.client.PresignedGetObject(c, bucket, object, expDuration, reqParams)
-	if err != nil {
-		return url.URL{}, err
-	}
-
-	return *presignedURL, nil
-}
-
-func (m *Minio) GetSignedUrlForUserDataFileEmptyParam(c *gin.Context, bucket string, object string, expDuration time.Duration) (url.URL, error) {
-	reqParams := make(url.Values)
+func (m *Minio) GetSignedUrlForObject(c *gin.Context, bucket string, object string, expDuration time.Duration, reqParams url.Values) (url.URL, error) {
 
 	presignedURL, err := m.client.PresignedGetObject(c, bucket, object, expDuration, reqParams)
 	if err != nil {
