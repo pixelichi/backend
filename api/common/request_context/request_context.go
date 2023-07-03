@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"shinypothos.com/api/common"
 	"shinypothos.com/api/common/server_error"
 	"shinypothos.com/api/data/ostore"
 	db "shinypothos.com/db/sqlc"
@@ -19,6 +20,20 @@ type RequestContext struct {
 	DB         *db.Store
 	TokenMaker *token.Maker
 	OS         *ostore.OStore
+}
+
+func SetReqCtx(s *common.Server) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		reqContext := RequestContext{
+			Config:     &s.Config,
+			DB:         s.DB,
+			OS:         s.ObjectStore,
+			TokenMaker: s.TokenMaker,
+		}
+
+		c.Set(requestContextKey, &reqContext)
+		c.Next()
+	}
 }
 
 func getReqCtx(c *gin.Context) (*RequestContext, error) {

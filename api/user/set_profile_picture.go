@@ -11,16 +11,12 @@ import (
 	"shinypothos.com/util/image_util"
 )
 
-type setProfilePictureResponse struct {
-}
-
 func SetProfilePicture(c *gin.Context) {
-
 	tokenPayload := token.GetPayloadOrAbort(c)
 	image := request_util.GetImageFromFormOrAbort(c, "file", image_util.ProfilePicConfig)
 	rc := request_context.GetReqCtxOrInternalServerError(c)
 
-	ostore_txn.UploadFileToUserDataOrAbort(c, rc.OS, tokenPayload.UserID, image, profPicFileName)
+	ostore_txn.UploadProfilePicOrAbort(c, rc.OS, tokenPayload.UserID, image)
 
 	c.Data(http.StatusOK, "image/jpeg", image.Bytes())
 }

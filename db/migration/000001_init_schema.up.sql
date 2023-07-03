@@ -8,21 +8,31 @@ CREATE TABLE "users" (
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE plants (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  species VARCHAR(255),
+  date_planted TIMESTAMP WITH TIME ZONE,
+  last_watered TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE
+);
 
--- CREATE TABLE "entries" (
---   "id" bigserial PRIMARY KEY,
---   "account_id" bigint NOT NULL,
---   "amount" bigint NOT NULL,
---   "created_at" timestamptz NOT NULL DEFAULT (now())
--- );
+CREATE INDEX idx_plants_user_id ON plants(user_id);
 
--- CREATE TABLE "transfers" (
---   "id" bigserial PRIMARY KEY,
---   "from_account_id" bigint NOT NULL,
---   "to_account_id" bigint NOT NULL,
---   "amount" bigint NOT NULL,
---   "created_at" timestamptz NOT NULL DEFAULT (now())
--- );
+CREATE TABLE plant_photos (
+  id BIGSERIAL PRIMARY KEY,
+  plant_id BIGINT REFERENCES plants(id) ON DELETE CASCADE,
+  photo_object_key VARCHAR(255) NOT NULL,
+  is_main BOOLEAN DEFAULT FALSE,
+  date_taken TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX idx_plant_photos_plant_id ON plant_photos(plant_id);
+
 
 -- CREATE INDEX ON "entries" ("account_id");
 

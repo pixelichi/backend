@@ -1,35 +1,27 @@
 package user
 
-// import (
-// 	"net/http"
+import (
+	"net/http"
 
-// 	"github.com/gin-gonic/gin"
-// 	"shinypothos.com/api/common/error"
-// 	"shinypothos.com/api/minio"
-// 	"shinypothos.com/token"
-// 	"shinypothos.com/util/image"
-// )
+	"github.com/gin-gonic/gin"
+	"shinypothos.com/api/common/request_context"
+	"shinypothos.com/api/data/ostore_txn"
+	"shinypothos.com/token"
+)
 
-// type getProfileResponse struct {
-// 	ProfilePicUrl    string `json:"profile_pic_url"`
-// }
+type GetProfilePictureResponse struct {
+	ProfilePic string `json:"profile_pic"`
+}
 
-// func GetProfile(ctx *gin.Context) {
+func GetProfilePicture(c *gin.Context) {
+	tokenPayload := token.GetPayloadOrAbort(c)
+	rc := request_context.GetReqCtxOrInternalServerError(c)
+	
+	url := ostore_txn.GetProfilePicPreSignedUrlOrAbort(c,rc.OS,tokenPayload.UserID)
 
-// 	userCtx, err := token.GetUserPayloadOrFatal(ctx)
-// 	if err != nil {
-// 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, error.NewNotAuthorizedError("Error Setting Profile Picture, unauthorized"))
-// 		return
-// 	}
+  response := GetProfilePictureResponse{
+    ProfilePic: url,
+	}
 
-// 	err = minio.UploadFileToUserData(ctx, userCtx.UserID, image, profPicFileName)
-// 	if err != nil {
-// 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
-// 	}
-
-// 	ctx.Data(http.StatusOK, "image/jpeg", image.Bytes())
-// 	response := response{}
-
-// 	// Successful login, send back the response
-// 	ctx.JSON(http.StatusOK, response)
-// }
+	c.JSON(http.StatusOK, response)
+}

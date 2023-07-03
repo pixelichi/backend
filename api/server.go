@@ -72,6 +72,7 @@ func setupRouter(config util.Config, server *Server) {
 	Use(request_context.SetReqCtx(server))
 
 	authRoutes.POST("/"+userRoute+"/set_profile_photo", user.SetProfilePicture)
+	authRoutes.GET("/"+userRoute+"/get_profile_photo", user.GetProfilePicture)
 
 	// authRoutes.GET("/accounts/:id", server.getAccount)
 	// authRoutes.POST("/accounts", server.createAccount)
