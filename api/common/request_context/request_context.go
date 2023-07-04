@@ -48,11 +48,12 @@ func getReqCtx(c *gin.Context) (*RequestContext, error) {
 	return rc, nil
 }
 
-func GetReqCtxOrInternalServerError(c *gin.Context) *RequestContext {
+func GetReqCtxOrInternalServerError(c *gin.Context) (*RequestContext, error) {
 	reqCtx, err := getReqCtx(c)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, server_error.NewInternalServerError("Unable to process request context"))
+		return nil, err
 	}
 
-	return reqCtx
+	return reqCtx, nil
 }

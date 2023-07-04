@@ -14,10 +14,20 @@ type GetProfilePictureResponse struct {
 }
 
 func GetProfilePicture(c *gin.Context) {
-	tokenPayload := token.GetPayloadOrAbort(c)
-	rc := request_context.GetReqCtxOrInternalServerError(c)
+	tokenPayload, err := token.GetPayloadOrAbort(c)
+	if err != nil {
+		return
+	}
+
+	rc,err := request_context.GetReqCtxOrInternalServerError(c)
+	if err != nil {
+		return
+	}
 	
-	url := ostore_txn.GetProfilePicPreSignedUrlOrAbort(c,rc.OS,tokenPayload.UserID)
+	url,err := ostore_txn.GetProfilePicPreSignedUrlOrAbort(c,rc.OS,tokenPayload.UserID)
+	if err != nil {
+		return
+	}
 
   response := GetProfilePictureResponse{
     ProfilePic: url,

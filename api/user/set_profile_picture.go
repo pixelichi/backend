@@ -12,9 +12,20 @@ import (
 )
 
 func SetProfilePicture(c *gin.Context) {
-	tokenPayload := token.GetPayloadOrAbort(c)
-	image := request_util.GetImageFromFormOrAbort(c, "file", image_util.ProfilePicConfig)
-	rc := request_context.GetReqCtxOrInternalServerError(c)
+	tokenPayload, err := token.GetPayloadOrAbort(c)
+	if err != nil {
+		return
+	}
+
+	image,err := request_util.GetImageFromFormOrAbort(c, "file", image_util.ProfilePicConfig)
+	if err != nil {
+		return 
+	}
+
+	rc,err := request_context.GetReqCtxOrInternalServerError(c)
+	if err != nil {
+		return
+	}
 
 	ostore_txn.UploadProfilePicOrAbort(c, rc.OS, tokenPayload.UserID, image)
 

@@ -33,9 +33,12 @@ func checkPassword(password string, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
-func CheckPasswordOrAbort(c *gin.Context, pass string, hashedPass string) {
+func CheckPasswordOrAbort(c *gin.Context, pass string, hashedPass string) (error) {
 	err := checkPassword(pass, hashedPass)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, server_error.NewInvalidCredentialsError("Password provided is incorrect. Try again."))
+		return err
 	}
+
+	return nil
 }
