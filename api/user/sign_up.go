@@ -23,10 +23,16 @@ type SignUpResponse struct {
 	Email    string `json:"email"`
 }
 
-
 func SignUp(c *gin.Context) {
-	rc := request_context.GetReqCtxOrInternalServerError(c)
-	req := request_util.BindJSONOrAbort(c,&SignUpRequest{}).(*SignUpRequest)
+	rc, err := request_context.GetReqCtxOrInternalServerError(c)
+	if err != nil {
+		return
+	}
+
+	req, err := request_util.BindJSONOrAbort[SignUpRequest](c, &SignUpRequest{})
+	if err != nil {
+		return
+	}
 
 	hashedPass := password_util.HashPasswordOrAbort(c, req.Password)
 
@@ -36,16 +42,19 @@ func SignUp(c *gin.Context) {
 		Email:          req.Email,
 	}
 
-	user := db_txn.CreateUserOrAbort(c,rc.DB,&arg)
-	accessToken := (*rc.TokenMaker).CreateTokenOrAbort(c, user.ID, rc.Config.AccessTokenDuration)
+	user := db_txn.CreateUserOrAbort(c, rc.DB, &arg)
+	accessToken, err := (*rc.TokenMaker).CreateTokenOrAbort(c, user.ID, rc.Config.AccessTokenDuration)
+	if err != nil {
+		return
+	}
 
 	// Set the token in an HttpOnly cookie
 	httpOnlyCookie := http.Cookie{
-		Name: "access_token",
-		Value: accessToken,
+		Name:     "access_token",
+		Value:    accessToken,
 		HttpOnly: true,
-		Expires: time.Now().Add(rc.Config.AccessTokenDuration),
-		Path: "/",
+		Expires:  time.Now().Add(rc.Config.AccessTokenDuration),
+		Path:     "/",
 	}
 
 	http.SetCookie(c.Writer, &httpOnlyCookie)

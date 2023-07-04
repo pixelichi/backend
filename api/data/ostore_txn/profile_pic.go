@@ -1,8 +1,6 @@
 package ostore_txn
 
 import (
-	"net/url"
-
 	"github.com/gin-gonic/gin"
 	"shinypothos.com/api/common/request_context"
 	"shinypothos.com/api/data/ostore"
@@ -12,15 +10,25 @@ import (
 
 const ProfPicFileName string = "profile_pic.jpg"
 
-func UploadProfilePicOrAbort(c *gin.Context, os *ostore.OStore, userId int64, image image_util.Image) {
+func UploadProfilePicOrAbort(c *gin.Context, os *ostore.OStore, userId int64, image *image_util.Image) {
 	uploadFileToUserDataOrAbort(c, os, userId, image, ProfPicFileName)
 }
 
+func GetProfilePicPreSignedUrlOrAbort(c *gin.Context, os *ostore.OStore, userId int64) (string, error) {
+	rc, err := request_context.GetReqCtxOrInternalServerError(c)
+	if err != nil {
+		return "", err
+	}
 
-func GetProfilePicPreSignedUrlOrAbort(c *gin.Context, os *ostore.OStore, userId int64) string {
-  rc := request_context.GetReqCtxOrInternalServerError(c)
-  tokenPayload := token.GetPayloadOrAbort(c)
+	tokenPayload, err := token.GetPayloadOrAbort(c)
+	if err != nil {
+		return "", err
+	}
 
-	var url url.URL = getPreSignedUrlForUserDataFileOrAbort(c, os, tokenPayload.UserID ,ProfPicFileName, rc.Config.AccessTokenDuration)
-  return url.String()
+	url, err := getPreSignedUrlForUserDataFileOrAbort(c, os, tokenPayload.UserID, ProfPicFileName, rc.Config.AccessTokenDuration)
+	if err != nil {
+		return "", err
+	}
+
+	return url.String(), nil
 }

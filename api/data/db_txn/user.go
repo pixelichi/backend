@@ -11,18 +11,20 @@ import (
 	db "shinypothos.com/db/sqlc"
 )
 
-func GetUserOrAbort(c *gin.Context, db *db.Store, username string) db.User {
+func GetUserOrAbort(c *gin.Context, db *db.Store, username string) (*db.User, error) {
 	user, err := db.GetUserFromUsername(c, username)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.AbortWithStatusJSON(http.StatusNotFound, server_error.NewInvalidCredentialsError("Couldn't find user - "+username))
+			return nil, err 
 		}
 
 		c.AbortWithStatusJSON(http.StatusInternalServerError, server_error.NewInternalServerError(err.Error()))
+		return nil, err
 	}
 
-	return user
+	return &user, nil
 }
 
 func CreateUserOrAbort(c *gin.Context, db *db.Store, createUserParams *db.CreateUserParams) db.User {

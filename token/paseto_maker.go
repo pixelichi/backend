@@ -39,13 +39,14 @@ func (maker *PasetoMaker) CreateToken(userID int64, duration time.Duration) (str
 	return maker.paseto.Encrypt(maker.symmetricKey, payload, nil)
 }
 
-func (maker *PasetoMaker) CreateTokenOrAbort(ctx *gin.Context, userID int64, duration time.Duration) string {
+func (maker *PasetoMaker) CreateTokenOrAbort(ctx *gin.Context, userID int64, duration time.Duration) (string, error) {
 	token, err := maker.CreateToken(userID, duration)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, server_error.NewInternalServerError(err.Error()))
+		return "", err
 	}
 
-	return token
+	return token, nil
 }
 
 // Check if the token is valid or not and if it is, it will return the payload in the token

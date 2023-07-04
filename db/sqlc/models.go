@@ -5,8 +5,30 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 )
+
+type Plant struct {
+	ID          int64          `json:"id"`
+	UserID      sql.NullInt64  `json:"user_id"`
+	Name        string         `json:"name"`
+	Species     sql.NullString `json:"species"`
+	DatePlanted sql.NullTime   `json:"date_planted"`
+	LastWatered sql.NullTime   `json:"last_watered"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
+}
+
+type PlantPhoto struct {
+	ID             int64         `json:"id"`
+	PlantID        sql.NullInt64 `json:"plant_id"`
+	PhotoObjectKey string        `json:"photo_object_key"`
+	IsMain         sql.NullBool  `json:"is_main"`
+	DateTaken      time.Time     `json:"date_taken"`
+	CreatedAt      time.Time     `json:"created_at"`
+	UpdatedAt      sql.NullTime  `json:"updated_at"`
+}
 
 type User struct {
 	ID                int64     `json:"id"`

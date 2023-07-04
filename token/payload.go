@@ -49,17 +49,21 @@ func (payload *Payload) Valid() error {
 	return nil
 }
 
-func GetPayloadOrAbort(c *gin.Context) Payload {
+func GetPayloadOrAbort(c *gin.Context) (*Payload, error) {
 
 	auth_info, exists := c.Get(AuthorizationPayloadKey)
 	if !exists {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, server_error.NewNotAuthorizedError("User Authentication information was not available in the request context."))
+		err := server_error.NewNotAuthorizedError("User Authentication information was not available in the request context.")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err)
+		return nil, err
 	}
 
 	payload, ok := auth_info.(Payload)
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, server_error.NewInternalServerError("Could not read user information"))
+		err := server_error.NewInternalServerError("Could not read user information")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err)
+		return nil, err
 	}
 
-	return payload
+	return &payload, nil
 }

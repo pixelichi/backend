@@ -19,22 +19,30 @@ type CheckAuthResponse struct {
 }
 
 
-func accessTokenOrInternalServerError(c *gin.Context) string {
+func accessTokenOrInternalServerError(c *gin.Context) (string,error) {
 	accessTokenCookie, err := c.Request.Cookie(accessTokenKey)
-	if err != nil {
+	if err != nil { // Could not get access token from cookie
 		c.AbortWithStatusJSON(http.StatusUnauthorized, server_error.NewNotAuthorizedError("No Access Token Provided"))
+		return "", err
 	}
 
 	accessToken := accessTokenCookie.Value
-	return accessToken
+	return accessToken, nil
 }
 
 
 func CheckAuth(c *gin.Context) {
-	reqCtx := request_context.GetReqCtxOrInternalServerError(c)
-	accessToken := accessTokenOrInternalServerError(c)
+	reqCtx, err := request_context.GetReqCtxOrInternalServerError(c)
+	if err != nil { // Could not get request context
+		return
+	}
 
-	_, err := (*reqCtx.TokenMaker).VerifyToken(accessToken)
+	accessToken, err := accessTokenOrInternalServerError(c)
+	if err != nil { // Could not get access token from cookie 
+		return
+	}
+
+	_, err = (*reqCtx.TokenMaker).VerifyToken(accessToken)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, server_error.NewNotAuthorizedError("Invalid Access Token"))
 		return

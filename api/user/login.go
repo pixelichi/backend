@@ -24,23 +24,39 @@ type loginUserResponse struct {
 	Email    string `json:"email"`
 }
 
-
 func LoginUser(c *gin.Context) {
-	req := request_util.BindJSONOrAbort(c, &loginUserRequest{}).(*loginUserRequest)
-	rc := request_context.GetReqCtxOrInternalServerError(c)
+	req, err := request_util.BindJSONOrAbort[loginUserRequest](c, &loginUserRequest{})
+	if err != nil { //Unable to Bind Json to Variable - Bad Request
+		return
+	}
 
-	user := db_fetch.GetUserOrAbort(c, rc.DB, req.Username)
+	rc, err := request_context.GetReqCtxOrInternalServerError(c)
+	if err != nil { // User Context wasn't available
+		return
+	}
+
+	user, err := db_fetch.GetUserOrAbort(c, rc.DB, req.Username)
+	if err != nil { // User not found in DB
+		return
+	}
+
 	password_util.CheckPasswordOrAbort(c, req.Password, user.HashedPassword)
-	accessToken := (*rc.TokenMaker).CreateTokenOrAbort(c, user.ID, rc.Config.AccessTokenDuration)
+	if err != nil { // Password was incorrect
+		return
+	}
 
+	accessToken, err := (*rc.TokenMaker).CreateTokenOrAbort(c, user.ID, rc.Config.AccessTokenDuration)
+	if err != nil { // Token could not be created for user
+		return
+	}
 
 	// Set the token in an HttpOnly cookie
 	httpOnlyCookie := http.Cookie{
-		Name: "access_token",
-		Value: accessToken,
+		Name:     "access_token",
+		Value:    accessToken,
 		HttpOnly: true,
-		Expires: time.Now().Add(rc.Config.AccessTokenDuration),
-		Path: "/",
+		Expires:  time.Now().Add(rc.Config.AccessTokenDuration),
+		Path:     "/",
 	}
 
 	http.SetCookie(c.Writer, &httpOnlyCookie)
@@ -52,4 +68,5 @@ func LoginUser(c *gin.Context) {
 
 	// Successful login, send back the response
 	c.JSON(http.StatusOK, response)
+	return
 }
