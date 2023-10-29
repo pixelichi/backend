@@ -2,6 +2,7 @@ package util
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/spf13/viper"
@@ -11,6 +12,7 @@ import (
 // The values are nread by viper from a config file or an environment variable
 type Config struct {
 	ENV                   string        `mapstructure:"ENV"` // prod, local
+	GIN_MODE              string        `mapstructure:"GIN_MODE"`
 	ALLOW_ORIGIN          string        `mapstructure:"ALLOW_ORIGIN"`
 	ALLOW_ORIGIN_LAN      string        `mapstructure:"ALLOW_ORIGIN_LAN"`
 	DBDriver              string        `mapstructure:"DB_DRIVER"`
@@ -24,12 +26,19 @@ type Config struct {
 	MINIO_PUBLIC_ENDPOINT string        `mapstructure:"MINIO_PUBLIC_ENDPOINT"`
 }
 
-func IsProdEnv(conf Config) bool {
+func (conf *Config) IsProdEnv() bool {
 	return conf.ENV == "prod"
 }
 
-func IsLocalEnv(conf Config) bool {
+func (conf *Config) IsLocalEnv() bool {
 	return conf.ENV == "local"
+}
+
+func (conf *Config) GetSameSite() http.SameSite {
+	return http.SameSiteDefaultMode
+	// if conf.IsLocalEnv() {
+	// 	return http.SameSiteNoneMode
+	// }
 }
 
 // LoadConfig reads configuration from file or environment variable

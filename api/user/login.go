@@ -57,6 +57,7 @@ func LoginUser(c *gin.Context) {
 		HttpOnly: true,
 		Expires:  time.Now().Add(rc.Config.AccessTokenDuration),
 		Path:     "/",
+		SameSite: rc.Config.GetSameSite(),
 	}
 
 	http.SetCookie(c.Writer, &httpOnlyCookie)
@@ -68,5 +69,4 @@ func LoginUser(c *gin.Context) {
 
 	// Successful login, send back the response
 	c.JSON(http.StatusOK, response)
-	return
 }

@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-mkdir -p ~/mnt/local/minio
-
 container_name=$1
 port=$2
 db_name=$3

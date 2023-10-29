@@ -42,7 +42,11 @@ func SignUp(c *gin.Context) {
 		Email:          req.Email,
 	}
 
-	user := db_txn.CreateUserOrAbort(c, rc.DB, &arg)
+	user,err := db_txn.CreateUserOrAbort(c, rc.DB, &arg)
+	if err != nil { // Could not create a user
+		return
+	}
+
 	accessToken, err := (*rc.TokenMaker).CreateTokenOrAbort(c, user.ID, rc.Config.AccessTokenDuration)
 	if err != nil {
 		return
@@ -54,6 +58,7 @@ func SignUp(c *gin.Context) {
 		Value:    accessToken,
 		HttpOnly: true,
 		Expires:  time.Now().Add(rc.Config.AccessTokenDuration),
+		SameSite: rc.Config.GetSameSite(),
 		Path:     "/",
 	}
 

@@ -69,8 +69,11 @@ LOCAL_MINIO_CONTAINER = local-minio
 local-check-db:
 	curl $(LOCAL_DB_HOST):$(LOCAL_DB_PORT)
 
+local-db-drop:
+	docker container exec $(LOCAL_DB_CONTAINER) dropdb --username=$(DB_USER) $(DB_NAME)
+
 local-db:
-	@./resources/build/start-local-minio.sh $(LOCAL_DB_CONTAINER) $(LOCAL_DB_PORT) $(LOCAL_DB_NAME) $(LOCAL_DB_USER) $(LOCAL_DB_PASS)
+	./resources/build/start-local-db.sh $(LOCAL_DB_CONTAINER) $(LOCAL_DB_PORT) $(LOCAL_DB_NAME) $(LOCAL_DB_USER) $(LOCAL_DB_PASS)
 	
 local-minio:
 	@./resources/build/start-local-minio.sh $(LOCAL_MINIO_CONTAINER) $(LOCAL_MINIO_ACCESS_KEY) $(LOCAL_MINIO_SECRET_KEY)
