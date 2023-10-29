@@ -40,7 +40,7 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	password_util.CheckPasswordOrAbort(c, req.Password, user.HashedPassword)
+	err = password_util.CheckPasswordOrAbort(c, req.Password, user.HashedPassword)
 	if err != nil { // Password was incorrect
 		return
 	}
