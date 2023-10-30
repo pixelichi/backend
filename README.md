@@ -1,5 +1,26 @@
 # Backend
 
+# Setup
+
+Get yourself GVM to manage your Golang installs
+https://github.com/moovweb/gvm
+
+This project needs Golang 19 so you can do 
+```bash
+gvm install go1.19
+gmv use go1.19
+```
+
+To run the backend + db + minio locally on docker you can just use 
+```bash
+cp ./env/local.env .env
+make local
+```
+
+The newly booted DB will not have the right schema so you then have to apply the migration to it
+```
+```
+
 # Reference
 
 https://github.com/techschool/simplebank

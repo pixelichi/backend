@@ -1,7 +1,7 @@
 VERSION 0.7
 
 builder:
-  FROM --platform='linux/amd64' golang:1.19
+  FROM golang:1.19
   ENV USER=appuser
   ENV UID=10001
 
@@ -31,7 +31,7 @@ builder:
 
 final-image:
   ARG ENV="prod"
-  FROM --platform='linux/amd64' gcr.io/distroless/base
+  FROM gcr.io/distroless/base
 
   # Use an unprivileged user.
   COPY +builder/passwd /etc/passwd
