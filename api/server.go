@@ -38,7 +38,7 @@ func NewServer(config util.Config, DB *db.Store, tokenMaker *token.Maker, object
 func setupRouter(config util.Config, server *Server) {
 	gin.SetMode(config.GIN_MODE)
 	router := gin.Default()
-	
+
 	// CORS for https://foo.com and https://github.com origins, allowing:
 	// - PUT and PATCH methods
 	// - Origin header
@@ -50,7 +50,15 @@ func setupRouter(config util.Config, server *Server) {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return strings.HasPrefix(origin, config.ALLOW_ORIGIN) || (config.IsLocalEnv() && strings.HasPrefix(origin, config.ALLOW_ORIGIN_LAN))
+			if strings.HasPrefix(origin, config.ALLOW_ORIGIN) {
+				return true
+			}
+
+			if config.ALLOW_ORIGIN_LAN != "" && strings.HasPrefix(origin, config.ALLOW_ORIGIN_LAN) {
+				return true
+			}
+
+			return false
 		},
 		MaxAge: 12 * time.Hour,
 	}))
@@ -62,20 +70,16 @@ func setupRouter(config util.Config, server *Server) {
 
 	noAuthRoutes.GET("/auth/check", auth.CheckAuth)
 	noAuthRoutes.POST("/"+userRoute+"/login", user.LoginUser)
-
-	if config.IsLocalEnv() {
-		noAuthRoutes.POST("/"+userRoute+"/sign_up", user.SignUp)
-	}
+	noAuthRoutes.POST("/"+userRoute+"/sign_up", user.SignUp)
 
 	// add routes to router
 	authRoutes := router.Group("/").
-	Use(middleware.AuthMiddleware(*server.TokenMaker)).
-	Use(request_context.SetReqCtx(server))
+		Use(middleware.AuthMiddleware(*server.TokenMaker)).
+		Use(request_context.SetReqCtx(server))
 
 	authRoutes.POST("/"+userRoute+"/set_profile_photo", user.SetProfilePicture)
 	authRoutes.GET("/"+userRoute+"/get_profile_photo", user.GetProfilePicture)
 	authRoutes.POST("/"+userRoute+"/add_plant", user.AddPlant)
-
 
 	// authRoutes.GET("/accounts/:id", server.getAccount)
 	// authRoutes.POST("/accounts", server.createAccount)

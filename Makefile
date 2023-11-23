@@ -49,7 +49,7 @@ prod-tail-pod:
 
 prod-deploy:
 	earthly +final-image --ENV="prod"
-	kind load docker-image backend:latest
+	kind --name=shinypothos load docker-image backend:latest
 	kubectl -n api-server rollout restart deployment api-server-deployment
 
 

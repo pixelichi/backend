@@ -5,21 +5,39 @@
 Get yourself GVM to manage your Golang installs
 https://github.com/moovweb/gvm
 
-This project needs Golang 19 so you can do 
+This project needs Golang 19 so you can do
+
 ```bash
 gvm install go1.19
 gmv use go1.19
 ```
 
-To run the backend + db + minio locally on docker you can just use 
+To run the backend + db + minio locally on docker you can just use
+
 ```bash
 cp ./env/local.env .env
 make local
 ```
 
 The newly booted DB will not have the right schema so you then have to apply the migration to it
+
 ```
+
 ```
+
+## Local Setup
+
+- Postman for Local endpoint testing
+- Docker
+- Earthly
+- Kind Cluster (optional for deploying full stack)
+
+## Downstream Dependencies
+
+- Postgres DB
+- Minio object store
+
+We connect to the above dependencies using local kubernetes dns resolution. Within the cluster you can reach out to other services by using a url with the following notation: `<service-name>.<namespace>.svc.cluster.local:<port>`.
 
 # Reference
 
@@ -58,54 +76,51 @@ https://github.com/go-playground/validator
 - Transfers API doesn't have authorization yet
 - Figure out CSRF along with access_token saved in cookie
 
-
 CREATE TABLE "users" (
-  "id" bigserial PRIMARY KEY,
-  "username" varchar UNIQUE NOT NULL,
-  "hashed_password" varchar NOT NULL,
-  "email" varchar UNIQUE NOT NULL,
-  "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+"id" bigserial PRIMARY KEY,
+"username" varchar UNIQUE NOT NULL,
+"hashed_password" varchar NOT NULL,
+"email" varchar UNIQUE NOT NULL,
+"password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
+"created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "plants" (
-  "id" BIGSERIAL PRIMARY KEY,
-  -- "plant_name" VARCHAR(255) NOT NULL,
-  -- "species" VARCHAR(255),
-  -- date_planted TIMESTAMP WITH TIME ZONE,
-  -- last_watered TIMESTAMP WITH TIME ZONE,
-  -- created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  -- updated_at TIMESTAMP WITH TIME ZONE
+"id" BIGSERIAL PRIMARY KEY,
+-- "plant_name" VARCHAR(255) NOT NULL,
+-- "species" VARCHAR(255),
+-- date_planted TIMESTAMP WITH TIME ZONE,
+-- last_watered TIMESTAMP WITH TIME ZONE,
+-- created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+-- updated_at TIMESTAMP WITH TIME ZONE
 );
 
 -- ALTER TABLE "plants" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
-
 -- CREATE TABLE "plants" (
---   "id" BIGSERIAL PRIMARY KEY,
---   "user_id" BIGINT REFERENCES users(id) ON DELETE CASCADE,
---   "plant_name" VARCHAR(255) NOT NULL,
---   "species" VARCHAR(255),
---   -- date_planted TIMESTAMP WITH TIME ZONE,
---   -- last_watered TIMESTAMP WITH TIME ZONE,
---   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
---   -- updated_at TIMESTAMP WITH TIME ZONE
+-- "id" BIGSERIAL PRIMARY KEY,
+-- "user_id" BIGINT REFERENCES users(id) ON DELETE CASCADE,
+-- "plant_name" VARCHAR(255) NOT NULL,
+-- "species" VARCHAR(255),
+-- -- date_planted TIMESTAMP WITH TIME ZONE,
+-- -- last_watered TIMESTAMP WITH TIME ZONE,
+-- created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+-- -- updated_at TIMESTAMP WITH TIME ZONE
 -- );
 
 -- CREATE INDEX idx_plants_user_id ON plants(user_id);
 
 -- CREATE TABLE plant_photos (
---   id BIGSERIAL PRIMARY KEY,
---   plant_id BIGINT REFERENCES plants(id) ON DELETE CASCADE,
---   photo_object_key VARCHAR(255) NOT NULL,
---   is_main BOOLEAN DEFAULT FALSE,
---   date_taken TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
---   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
---   updated_at TIMESTAMP WITH TIME ZONE
+-- id BIGSERIAL PRIMARY KEY,
+-- plant_id BIGINT REFERENCES plants(id) ON DELETE CASCADE,
+-- photo_object_key VARCHAR(255) NOT NULL,
+-- is_main BOOLEAN DEFAULT FALSE,
+-- date_taken TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+-- created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+-- updated_at TIMESTAMP WITH TIME ZONE
 -- );
 
 -- CREATE INDEX idx_plant_photos_plant_id ON plant_photos(plant_id);
-
 
 -- CREATE INDEX ON "entries" ("account_id");
 
