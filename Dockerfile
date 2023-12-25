@@ -48,7 +48,6 @@ WORKDIR /app
 
 # Copy our static executable
 COPY --from=builder /usr/local/bin/backend .
-COPY env/prod.env .env
 
 # Run the binary.
 CMD ["./backend"]

@@ -17,7 +17,7 @@ func main() {
 	config := util.LoadConfig(".")
 	db := db.GetDBStore(config.DBDriver, config.DBSource)
 	tokenMaker := token.NewPasetoMaker(config.TokenSymmetricKey)
-	objectStore := ostore.NewMinioObjectStore(config.MINIO_ENDPOINT, config.MINIO_ACCESS_KEY, config.MINIO_SECRET_KEY)
+	objectStore := ostore.NewMinioObjectStore(config.MINIO_ENDPOINT, config.MINIO_ROOT_USER, config.MINIO_ROOT_PASSWORD)
 	server := api.NewServer(config, db, &tokenMaker, &objectStore)
 	server.Start(config.ServerAddress)
 }

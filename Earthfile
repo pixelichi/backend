@@ -44,7 +44,6 @@ final-image:
 
   # Copy our static executable
   COPY +builder/backend .
-  COPY env/$ENV.env .env
 
   # Run the binary.
   CMD ["/app/backend"]

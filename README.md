@@ -43,6 +43,9 @@ We connect to the above dependencies using local kubernetes dns resolution. With
 
 https://github.com/techschool/simplebank
 
+#### Minio SDK Guide
+https://min.io/docs/minio/linux/developers/minio-drivers.html?ref=docs 
+
 # Tech Stack
 
 - [sqlc](https://github.com/kyleconroy/sqlc) for generating golang functions that match postgres database schema

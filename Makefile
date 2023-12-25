@@ -49,8 +49,8 @@ prod-tail-pod:
 
 prod-deploy:
 	earthly +final-image --ENV="prod"
-	kind --name=shinypothos load docker-image backend:latest
-	kubectl -n api-server rollout restart deployment api-server-deployment
+	kind --name=jtrack load docker-image backend:latest
+	kubectl -n backend rollout restart deployment backend-deployment
 
 
 LOCAL_DB_DRIVER = postgresql
